@@ -1,33 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mistralai-codestral-22b-v0-1
+  name: llama-3-1-8b-instruct
   namespace: rhaiis-namespace
   labels:
-    app: mistralai
+    app:
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mistralai
+      app: llama-3-1-8b-instruct
   template:
     metadata:
       labels:
-        app: mistralai
+        app: llama-3-1-8b-instruct
     spec:
       imagePullSecrets:
         - name: docker-secret
       volumes:
         - name: model-volume
           persistentVolumeClaim:
-            claimName: model-cache
+            claimName: llama-3-1-8b-instruct
         - name: shm
           emptyDir:
             medium: Memory
             sizeLimit: "16Gi"
       serviceAccountName: default
       containers:
-        - name: mistralai
+        - name: llama-3-1-8b-instruct
           image: 'registry.redhat.io/rhaiis/vllm-cuda-rhel9@sha256:a6645a8e8d7928dce59542c362caf11eca94bb1b427390e78f0f8a87912041cd'
           imagePullPolicy: IfNotPresent
           envFrom:
@@ -46,9 +46,9 @@ spec:
             - vllm.entrypoints.openai.api_server
           args:
             - '--port=8000'
-            - '--served-model-name=mistralai/Codestral-22B-v0.1'
+            - '--served-model-name=meta-llama/Llama-3.1-8B-Instruct'
             - '--tensor-parallel-size=1'
-            - '--model=mistralai/Codestral-22B-v0.1'
+            - '--model=meta-llama/Llama-3.1-8B-Instruct'
           ports:
             - containerPort: 8000
               protocol: TCP
@@ -66,6 +66,36 @@ spec:
               mountPath: /opt/app-root/src/.cache
             - name: shm
               mountPath: /dev/shm
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 120
       restartPolicy: Always
       tolerations:
         - effect: NoSchedule

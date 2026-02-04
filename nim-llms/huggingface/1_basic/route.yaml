@@ -1,11 +1,11 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: mistralai
+  name: llama-3-1-8b-instruct
   namespace: rhaiis-namespace
 spec:
   to:
     kind: Service
-    name: mistralai
+    name: llama-3-1-8b-instruct
   port:
-    targetPort: 80
+    targetPort: http
