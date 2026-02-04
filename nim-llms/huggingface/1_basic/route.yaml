@@ -1,0 +1,11 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: mistralai
+  namespace: rhaiis-namespace
+spec:
+  to:
+    kind: Service
+    name: mistralai
+  port:
+    targetPort: 80

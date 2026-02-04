@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mistralai-codestral-22b-v0-1
+  namespace: rhaiis-namespace
+  labels:
+    app: mistralai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mistralai
+  template:
+    metadata:
+      labels:
+        app: mistralai
+    spec:
+      imagePullSecrets:
+        - name: docker-secret
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+            claimName: model-cache
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "16Gi"
+      serviceAccountName: default
+      containers:
+        - name: mistralai
+          image: 'registry.redhat.io/rhaiis/vllm-cuda-rhel9@sha256:a6645a8e8d7928dce59542c362caf11eca94bb1b427390e78f0f8a87912041cd'
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - secretRef:
+                name: hf-secret
+          env:
+            - name: VLLM_SERVER_DEV_MODE
+              value: '1'
+            - name: HUGGING_FACE_HUB_TOKEN
+              value: '$HF_TOKEN'
+            - name: HF_HUB_OFFLINE
+              value: '0'
+          command:
+            - python
+            - '-m'
+            - vllm.entrypoints.openai.api_server
+          args:
+            - '--port=8000'
+            - '--served-model-name=mistralai/Codestral-22B-v0.1'
+            - '--tensor-parallel-size=1'
+            - '--model=mistralai/Codestral-22B-v0.1'
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            limits:
+              cpu: '8'
+              memory: 32Gi
+              nvidia.com/gpu: '1'
+            requests:
+              cpu: '2'
+              memory: 16Gi
+              nvidia.com/gpu: '1'
+          volumeMounts:
+            - name: model-volume
+              mountPath: /opt/app-root/src/.cache
+            - name: shm
+              mountPath: /dev/shm
+      restartPolicy: Always
+      tolerations:
+        - effect: NoSchedule
+          key: g6e-gpu
+          operator: Exists
