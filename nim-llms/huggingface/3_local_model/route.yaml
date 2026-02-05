@@ -1,0 +1,11 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: qwen2-5-0-5b
+  namespace: rhaiis-namespace
+spec:
+  to:
+    kind: Service
+    name: qwen2-5-0-5b
+  port:
+    targetPort: http
