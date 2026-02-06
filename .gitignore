@@ -3,3 +3,7 @@
 *.iml
 out
 gen
+
+# Secrets and credentials - do not commit
+*-pull-secret.yaml
+*.secret.yaml

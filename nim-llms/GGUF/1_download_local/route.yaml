@@ -1,0 +1,11 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: llama-3-2-3b-instruct-q8
+  namespace: rhaiis-namespace
+spec:
+  to:
+    kind: Service
+    name: llama-3-2-3b-instruct-q8
+  port:
+    targetPort: http
