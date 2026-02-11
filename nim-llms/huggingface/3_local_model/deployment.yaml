@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qwen2-5-0-5b
-  namespace: rhaiis-namespace
   labels:
     app: qwen2-5-0-5b
 spec:

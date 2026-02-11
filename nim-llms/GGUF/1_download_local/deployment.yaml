@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: llama-3-2-3b-instruct-q8
-  namespace: rhaiis-namespace
   labels:
     app: llama-3-2-3b-instruct-q8
 spec:

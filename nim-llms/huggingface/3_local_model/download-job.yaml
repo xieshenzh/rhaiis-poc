@@ -2,7 +2,6 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: qwen2-5-0-5b
-  namespace: rhaiis-namespace
 spec:
   backoffLimit: 3
   template:
